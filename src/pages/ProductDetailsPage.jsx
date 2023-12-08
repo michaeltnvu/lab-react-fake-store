@@ -1,29 +1,37 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { API_URL } from "../services/API_URL";
+import { useContext, useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { ProductContext } from "../context/products.context";
 
 function ProductDetailsPage() {
-  const [product, setProduct] = useState({});
+  const [product, setProduct] = useState(null);
   const { productId } = useParams();
+  const { loading, products, getProducts } = useContext(ProductContext);
 
   useEffect(() => {
-    axios
-      .get(`${API_URL}/${productId}`)
-      .then((res) => {
-        setProduct(res.data);
-      })
-      .catch((err) => console.log(err));
-  }, [productId]);
+    if (!products.length) {
+      getProducts();
+    }
+    let thisProduct = products.find(
+      (product) => product.id === Number(productId)
+    );
+    setProduct(thisProduct);
+  }, [products, productId]);
 
   return (
-    <div className="">
-      <img src={product.image} alt="product" />
-      <p>{product.category}</p>
-      <h3>{product.title}</h3>
-      <p>{product.description}</p>
-      <p>{product.price}</p>
-    </div>
+    <>
+      {product && (
+        <div className="ProductDetailsPage">
+          <img src={product.image} alt="product" />
+          <p>{product.category}</p>
+          <h3>{product.title}</h3>
+          <p>{product.description}</p>
+          <p>{product.price}</p>
+        </div>
+      )}
+      <Link to="/">
+        <button>Back</button>
+      </Link>
+    </>
   );
 }
 

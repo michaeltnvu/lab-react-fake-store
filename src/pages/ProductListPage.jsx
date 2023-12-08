@@ -1,35 +1,34 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import ProductCard from "../components/ProductCard";
+import { ProductContext } from "../context/products.context";
 import { API_URL } from "../services/API_URL";
 
 function ProductListPage() {
-  const [products, setProducts] = useState([]);
+  const { loading, products, getProducts } = useContext(ProductContext);
 
   useEffect(() => {
-    axios
-      .get(API_URL)
-      .then((res) => {
-        setProducts(res.data);
-      })
-      .catch((err) => console.log(err));
+    if (!products.length) {
+      getProducts();
+    }
   }, []);
 
   return (
     <div className="ProductListPage">
-      {products.map((product) => {
-        return (
-          <Link key={product.id} to={`/product/details/${product.id}`}>
-            <div className="card">
-              <img src={product.image} alt="product" />
-              <h3>{product.title}</h3>
-              <p>{product.category}</p>
-              <p>{product.price}</p>
-              <p>{product.description}</p>
-            </div>
-          </Link>
-        );
-      })}
+      {loading && <p>Loading...</p>}
+      {products.length ? (
+        <>
+          {products.map((product) => {
+            return (
+              <Link key={product.id} to={`/product/details/${product.id}`}>
+                <ProductCard product={product} />
+              </Link>
+            );
+          })}
+        </>
+      ) : (
+        <p>Loading...</p>
+      )}
     </div>
   );
 }
